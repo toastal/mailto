@@ -1,0 +1,18 @@
+{
+  "name": "mailto",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toastal/mailto.git"
+  },
+  "author": "toastal",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/toastal/mailto/issues"
+  },
+  "homepage": "https://github.com/toastal/mailto#readme",
+  "dependencies": {
+    "elm": "~0.19.0-bugfix6"
+  }
+}
