@@ -36,6 +36,7 @@ module Mailto exposing
 -}
 
 import Html
+import Html.Attributes
 import Url.Builder exposing (QueryParameter)
 
 
@@ -76,7 +77,7 @@ toQueryParameters m =
                     Nothing
 
                 _ ->
-                    Url.Builder.string key (String.join "," emails)
+                    Just (Url.Builder.string key (String.join "," emails))
     in
     List.filterMap identity
         [ Maybe.map (Url.Builder.string "subject") m.subject
@@ -103,10 +104,10 @@ mailto =
 -}
 mailtoMultiple : List Email -> Mailto
 mailtoMultiple =
-    mailTo << String.join ","
+    mailto << String.join ","
 
 
-mapMailtoM : Endo Mailto
+mapMailtoM : Endo M -> Endo Mailto
 mapMailtoM f (Mailto m email) =
     Mailto (f m) email
 
@@ -121,7 +122,7 @@ mapMailtoM f (Mailto m email) =
 -}
 withSubject : String -> Endo Mailto
 withSubject subject =
-    mapMailtoM (\m -> { subject = Just subject })
+    mapMailtoM (\m -> { m | subject = Just subject })
 
 
 {-| Adds carbon copies to the mailto
@@ -134,7 +135,7 @@ withSubject subject =
 -}
 withCc : List Email -> Endo Mailto
 withCc cc =
-    mapMailtoM (\m -> { cc = cc })
+    mapMailtoM (\m -> { m | cc = cc })
 
 
 {-| Adds blind carbon copies to the mailto
@@ -147,7 +148,7 @@ withCc cc =
 -}
 withBcc : List Email -> Endo Mailto
 withBcc bcc =
-    mapMailtoM (\m -> { bcc = bcc })
+    mapMailtoM (\m -> { m | bcc = bcc })
 
 
 {-| Adds a body to the mailto
@@ -158,15 +159,15 @@ withBcc bcc =
     -- "mailto:partner@test.mail?body=It will be spicy nam dtok muu salad."
 
 -}
-withBody : List String -> Endo Mailto
+withBody : String -> Endo Mailto
 withBody body =
-    mapMailtoM (\m -> { body = Just body })
+    mapMailtoM (\m -> { m | body = Just body })
 
 
 {-| After composing a `Mailto`, consume a string
 -}
 toString : Mailto -> String
-toString (Mailto email m) =
+toString (Mailto m email) =
     "mailto:" ++ email ++ Url.Builder.toQuery (toQueryParameters m)
 
 
@@ -174,4 +175,4 @@ toString (Mailto email m) =
 -}
 toHref : Mailto -> Html.Attribute msg
 toHref =
-    Html.Attribute.href << toString
+    Html.Attributes.href << toString
