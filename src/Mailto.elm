@@ -154,9 +154,9 @@ withBcc bcc =
 {-| Adds a body to the mailto
 
     mailto "partner@test.mail"
-        |> withBody "It will be spicy nam dtok muu salad."
+        |> withBody "It will be a spicy nam dtok muu salad."
         |> toString
-    -- "mailto:partner@test.mail?body=It will be spicy nam dtok muu salad."
+    -- "mailto:partner@test.mail?body=It will be a spicy nam dtok muu salad."
 
 -}
 withBody : String -> Endo Mailto
