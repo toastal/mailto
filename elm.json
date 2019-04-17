@@ -3,7 +3,7 @@
     "name": "toastal/mailto",
     "summary": "mailto DSL to make mailto links easy",
     "license": "MIT",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "exposed-modules": [
         "Mailto"
     ],
