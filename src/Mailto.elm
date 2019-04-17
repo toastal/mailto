@@ -2,7 +2,7 @@ module Mailto exposing
     ( Mailto
     , Email
     , mailto, mailtoMultiple
-    , withSubject, withCc, withBcc, withBody
+    , subject, cc, bcc, body
     , toString, toHref
     )
 
@@ -26,7 +26,7 @@ module Mailto exposing
 
 # Adding fields
 
-@docs withSubject, withCc, withBcc, withBody
+@docs subject, cc, bcc, body
 
 
 # Formats
@@ -35,13 +35,10 @@ module Mailto exposing
 
 -}
 
+import Endo exposing (Endo, Over)
 import Html
 import Html.Attributes
 import Url.Builder exposing (QueryParameter)
-
-
-type alias Endo a =
-    a -> a
 
 
 {-| Just a `String` alias
@@ -107,61 +104,61 @@ mailtoMultiple =
     mailto << String.join ","
 
 
-mapMailtoM : Endo M -> Endo Mailto
-mapMailtoM f (Mailto m email) =
+over : Over Mailto M
+over f (Mailto m email) =
     Mailto (f m) email
 
 
 {-| Adds a subject to the mailto
 
     mailto "partner@test.mail"
-        |> withSubject "I want to cook you dinner"
+        |> subject "I want to cook you dinner"
         |> toString
     -- "mailto:partner@test.mail?subject=I want to cook you dinner"
 
 -}
-withSubject : String -> Endo Mailto
-withSubject subject =
-    mapMailtoM (\m -> { m | subject = Just subject })
+subject : String -> Endo Mailto
+subject subject_ =
+    over (\m -> { m | subject = Just subject_ })
 
 
 {-| Adds carbon copies to the mailto
 
     mailto "partner@test.mail"
-        |> withCc [ "cc@test.mail", "mutualfried@test.mail" ]
+        |> cc [ "cc@test.mail", "mutualfried@test.mail" ]
         |> toString
     -- "mailto:partner@test.mail?cc=cc@test.mail,mutualfried@test.mail"
 
 -}
-withCc : List Email -> Endo Mailto
-withCc cc =
-    mapMailtoM (\m -> { m | cc = cc })
+cc : List Email -> Endo Mailto
+cc cc_ =
+    over (\m -> { m | cc = cc_ })
 
 
 {-| Adds blind carbon copies to the mailto
 
     mailto "partner@test.mail"
-        |> withBcc [ "bcc@test.mail", "secretfriend@test.mail" ]
+        |> bcc [ "bcc@test.mail", "secretfriend@test.mail" ]
         |> toString
     -- "mailto:partner@test.mail?bcc=bcc@test.mail,secretfriend@test.mail"
 
 -}
-withBcc : List Email -> Endo Mailto
-withBcc bcc =
-    mapMailtoM (\m -> { m | bcc = bcc })
+bcc : List Email -> Endo Mailto
+bcc bcc_ =
+    over (\m -> { m | bcc = bcc_ })
 
 
 {-| Adds a body to the mailto
 
     mailto "partner@test.mail"
-        |> withBody "It will be a spicy nam dtok muu salad."
+        |> body "It will be a spicy nam dtok muu salad."
         |> toString
     -- "mailto:partner@test.mail?body=It will be a spicy nam dtok muu salad."
 
 -}
-withBody : String -> Endo Mailto
-withBody body =
-    mapMailtoM (\m -> { m | body = Just body })
+body : String -> Endo Mailto
+body body_ =
+    over (\m -> { m | body = Just body_ })
 
 
 {-| After composing a `Mailto`, consume a string
@@ -171,7 +168,7 @@ toString (Mailto m email) =
     "mailto:" ++ email ++ Url.Builder.toQuery (toQueryParameters m)
 
 
-{-| For convenience, you can turn a `Mailto` into an `Html.Attribute` as well\`
+{-| For convenience, you can turn a `Mailto` into an `Html.Attribute` as well
 -}
 toHref : Mailto -> Html.Attribute msg
 toHref =
