@@ -38,6 +38,7 @@ module Mailto exposing
 import Endo exposing (Endo, Over)
 import Html
 import Html.Attributes
+import List.Nonempty exposing (Nonempty)
 import Url.Builder exposing (QueryParameter)
 
 
@@ -87,21 +88,21 @@ toQueryParameters m =
 {-| Definition
 -}
 type Mailto
-    = Mailto M Email
+    = Mailto M (Nonempty Email)
 
 
 {-| Constructs an empty Mailto with no parameters. It's the `singleton` of `Mailto`.
 -}
 mailto : Email -> Mailto
 mailto =
-    Mailto emptyM
+    mailtoMultiple << List.Nonempty.fromElement
 
 
 {-| Constructs an empty Mailto with no parameters, but with mailtoMultiple recipients. It's the `singleton` of `Mailto`.
 -}
-mailtoMultiple : List Email -> Mailto
+mailtoMultiple : Nonempty Email -> Mailto
 mailtoMultiple =
-    mailto << String.join ","
+    Mailto emptyM
 
 
 over : Over Mailto M
@@ -164,8 +165,10 @@ body body_ =
 {-| After composing a `Mailto`, consume a string
 -}
 toString : Mailto -> String
-toString (Mailto m email) =
-    "mailto:" ++ email ++ Url.Builder.toQuery (toQueryParameters m)
+toString (Mailto m emails) =
+    "mailto:"
+        ++ String.join "," (List.Nonempty.toList emails)
+        ++ Url.Builder.toQuery (toQueryParameters m)
 
 
 {-| For convenience, you can turn a `Mailto` into an `Html.Attribute` as well

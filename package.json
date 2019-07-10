@@ -1,7 +1,6 @@
 {
   "name": "mailto",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/toastal/mailto.git"
@@ -13,6 +12,6 @@
   },
   "homepage": "https://github.com/toastal/mailto#readme",
   "dependencies": {
-    "elm": "~0.19.0-bugfix6"
+    "elm": "^0.19.0-no-deps"
   }
 }
