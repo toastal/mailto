@@ -126,9 +126,9 @@ subject subject_ =
 {-| Adds carbon copies to the mailto
 
     mailto "partner@test.mail"
-        |> cc [ "cc@test.mail", "mutualfried@test.mail" ]
+        |> cc [ "cc@test.mail", "mutualfriend@test.mail" ]
         |> toString
-    -- "mailto:partner@test.mail?cc=cc@test.mail,mutualfried@test.mail"
+    -- "mailto:partner@test.mail?cc=cc@test.mail,mutualfriend@test.mail"
 
 -}
 cc : List Email -> Endo Mailto
