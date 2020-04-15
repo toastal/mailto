@@ -3,7 +3,7 @@
     "name": "toastal/mailto",
     "summary": "mailto DSL to make mailto links easy",
     "license": "MIT",
-    "version": "3.0.0",
+    "version": "4.0.0",
     "exposed-modules": [
         "Mailto"
     ],
@@ -12,7 +12,6 @@
         "elm/core": "1.0.0 <= v < 2.0.0",
         "elm/html": "1.0.0 <= v < 2.0.0",
         "elm/url": "1.0.0 <= v < 2.0.0",
-        "mgold/elm-nonempty-list": "4.0.1 <= v < 5.0.0",
         "toastal/endo": "1.1.0 <= v < 2.0.0"
     },
     "test-dependencies": {}

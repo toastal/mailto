@@ -1,7 +1,7 @@
 module Mailto exposing
     ( Mailto
     , Email
-    , mailto, mailtoMultiple
+    , mailto, mailtoMultiple, mailtoEmpty
     , subject, cc, bcc, body
     , toString, toHref
     )
@@ -21,7 +21,7 @@ module Mailto exposing
 
 # Creation
 
-@docs mailto, mailtoMultiple
+@docs mailto, mailtoMultiple, mailtoEmpty
 
 
 # Adding fields
@@ -38,7 +38,6 @@ module Mailto exposing
 import Endo exposing (Endo, Over)
 import Html
 import Html.Attributes
-import List.Nonempty exposing (Nonempty)
 import Url.Builder exposing (QueryParameter)
 
 
@@ -48,7 +47,7 @@ type alias Email =
     String
 
 
-type alias M =
+type alias EmailAttrs =
     { subject : Maybe String
     , cc : List Email
     , bcc : List Email
@@ -56,8 +55,8 @@ type alias M =
     }
 
 
-emptyM : M
-emptyM =
+emptyEmailAttrs : EmailAttrs
+emptyEmailAttrs =
     { subject = Nothing
     , cc = []
     , bcc = []
@@ -65,8 +64,8 @@ emptyM =
     }
 
 
-toQueryParameters : M -> List QueryParameter
-toQueryParameters m =
+toQueryParameters : EmailAttrs -> List QueryParameter
+toQueryParameters attrs =
     let
         copyTo : String -> List String -> Maybe QueryParameter
         copyTo key emails =
@@ -78,36 +77,43 @@ toQueryParameters m =
                     Just (Url.Builder.string key (String.join "," emails))
     in
     List.filterMap identity
-        [ Maybe.map (Url.Builder.string "subject") m.subject
-        , copyTo "cc" m.cc
-        , copyTo "bcc" m.bcc
-        , Maybe.map (Url.Builder.string "body") m.body
+        [ Maybe.map (Url.Builder.string "subject") attrs.subject
+        , copyTo "cc" attrs.cc
+        , copyTo "bcc" attrs.bcc
+        , Maybe.map (Url.Builder.string "body") attrs.body
         ]
 
 
 {-| Definition
 -}
 type Mailto
-    = Mailto M (Nonempty Email)
+    = Mailto EmailAttrs (List Email)
 
 
-{-| Constructs an empty Mailto with no parameters. It's the `singleton` of `Mailto`.
+{-| Constructs an empty Mailto with no parameters. It’s the `singleton` of `Mailto`.
 -}
 mailto : Email -> Mailto
 mailto =
-    mailtoMultiple << List.Nonempty.fromElement
+    mailtoMultiple << List.singleton
 
 
-{-| Constructs an empty Mailto with no parameters, but with mailtoMultiple recipients. It's the `singleton` of `Mailto`.
+{-| Constructs an empty Mailto with no parameters, but with mailtoMultiple recipients. It’s the `singleton` of `Mailto`.
 -}
-mailtoMultiple : Nonempty Email -> Mailto
+mailtoMultiple : List Email -> Mailto
 mailtoMultiple =
-    Mailto emptyM
+    Mailto emptyEmailAttrs
 
 
-over : Over Mailto M
-over f (Mailto m email) =
-    Mailto (f m) email
+{-| Constructs an empty Mailto with no parameters, but has no email addresses (useful when you want a blank message template). It’s the `singleton` to `Mailto`.
+-}
+mailtoEmpty : Mailto
+mailtoEmpty =
+    mailtoMultiple []
+
+
+over : Over Mailto EmailAttrs
+over f (Mailto attrs email) =
+    Mailto (f attrs) email
 
 
 {-| Adds a subject to the mailto
@@ -115,7 +121,7 @@ over f (Mailto m email) =
     mailto "partner@test.mail"
         |> subject "I want to cook you dinner"
         |> toString
-    -- "mailto:partner@test.mail?subject=I want to cook you dinner"
+    -- "mailto:partner@test.mail?subject=I%20want%20to%20cook%20you%20dinner"
 
 -}
 subject : String -> Endo Mailto
@@ -152,9 +158,9 @@ bcc bcc_ =
 {-| Adds a body to the mailto
 
     mailto "partner@test.mail"
-        |> body "It will be a spicy nam dtok muu salad."
+        |> body "I’ll be making a spicy, Isaan nam dtok muu salad (น้ำตกหมู)."
         |> toString
-    -- "mailto:partner@test.mail?body=It will be a spicy nam dtok muu salad."
+    -- "mailto:partner@test.mail?body=I%E2%80%99ll%20be%20making%20a%20spicy,%20Isaan%20nam%20dtok%20muu%20salad%20(%E0%B8%99%E0%B9%89%E0%B8%B3%E0%B8%95%E0%B8%81%E0%B8%AB%E0%B8%A1%E0%B8%B9)."
 
 -}
 body : String -> Endo Mailto
@@ -167,7 +173,7 @@ body body_ =
 toString : Mailto -> String
 toString (Mailto m emails) =
     "mailto:"
-        ++ String.join "," (List.Nonempty.toList emails)
+        ++ String.join "," emails
         ++ Url.Builder.toQuery (toQueryParameters m)
 
 
