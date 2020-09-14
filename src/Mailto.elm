@@ -1,7 +1,7 @@
 module Mailto exposing
     ( Mailto
     , Email
-    , mailto, mailtoMultiple, mailtoEmpty
+    , mailto, mailtoMultiple, mailtoNobody
     , subject, cc, bcc, body
     , toString, toHref
     )
@@ -21,7 +21,7 @@ module Mailto exposing
 
 # Creation
 
-@docs mailto, mailtoMultiple, mailtoEmpty
+@docs mailto, mailtoMultiple, mailtoNobody
 
 
 # Adding fields
@@ -106,8 +106,8 @@ mailtoMultiple =
 
 {-| Constructs an empty Mailto with no parameters, but has no email addresses (useful when you want a blank message template). It’s the `singleton` to `Mailto`.
 -}
-mailtoEmpty : Mailto
-mailtoEmpty =
+mailtoNobody : Mailto
+mailtoNobody =
     mailtoMultiple []
 
 
