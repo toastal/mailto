@@ -2,8 +2,8 @@
     "type": "package",
     "name": "toastal/mailto",
     "summary": "mailto DSL to make mailto links easy",
-    "license": "MIT",
-    "version": "5.1.0",
+    "license": "Apache-2.0",
+    "version": "5.1.1",
     "exposed-modules": [
         "Mailto"
     ],
@@ -12,7 +12,7 @@
         "elm/core": "1.0.0 <= v < 2.0.0",
         "elm/html": "1.0.0 <= v < 2.0.0",
         "elm/url": "1.0.0 <= v < 2.0.0",
-        "toastal/endo": "1.1.0 <= v < 2.0.0"
+        "toastal/endo": "1.1.2 <= v < 2.0.0"
     },
     "test-dependencies": {}
 }
