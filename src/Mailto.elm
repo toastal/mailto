@@ -1,12 +1,29 @@
+{-
+   Copyright © 2019–2021 toastal <toastal@posteo.net> (https://toast.al)
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-}
+
+
 module Mailto exposing
     ( Mailto
     , Email
     , mailto, mailtoMultiple, mailtoNobody
-    , subject, cc, bcc, body
+    , inReplyTo, subject, cc, bcc, body, header
     , toString, toHref
     )
 
-{-| A small DSL to build Mailto links
+{-| A small DSL to build Mailto links. See more [rfc6068](https://www.google.com/search?q=mailto+reply+to+scheme&hl=en).
 
 
 # Definition
@@ -26,7 +43,7 @@ module Mailto exposing
 
 # Adding fields
 
-@docs subject, cc, bcc, body
+@docs inReplyTo, subject, cc, bcc, body, header
 
 
 # Formats
@@ -48,19 +65,23 @@ type alias Email =
 
 
 type alias EmailAttrs =
-    { subject : Maybe String
+    { inReplyTo : Maybe String
+    , subject : Maybe String
     , cc : List Email
     , bcc : List Email
     , body : Maybe String
+    , extraHeaders : List ( String, String )
     }
 
 
 emptyEmailAttrs : EmailAttrs
 emptyEmailAttrs =
-    { subject = Nothing
+    { inReplyTo = Nothing
+    , subject = Nothing
     , cc = []
     , bcc = []
     , body = Nothing
+    , extraHeaders = []
     }
 
 
@@ -77,11 +98,13 @@ toQueryParameters attrs =
                     Just (Url.Builder.string key (String.join "," emails))
     in
     List.filterMap identity
-        [ Maybe.map (Url.Builder.string "subject") attrs.subject
-        , copyTo "cc" attrs.cc
-        , copyTo "bcc" attrs.bcc
-        , Maybe.map (Url.Builder.string "body") attrs.body
-        ]
+        (Maybe.map (Url.Builder.string "In-Reply-To") attrs.inReplyTo
+            :: Maybe.map (Url.Builder.string "subject") attrs.subject
+            :: copyTo "cc" attrs.cc
+            :: copyTo "bcc" attrs.bcc
+            :: Maybe.map (Url.Builder.string "body") attrs.body
+            :: List.map (\( k, v ) -> Just (Url.Builder.string k v)) attrs.extraHeaders
+        )
 
 
 {-| Definition
@@ -114,6 +137,17 @@ mailtoNobody =
 over : Over Mailto EmailAttrs
 over f (Mailto attrs email) =
     Mailto (f attrs) email
+
+
+{-| Adds an Message-ID to reply to in order to preserve threading
+mailto "list@example.org"
+|> inReplyTo "[3469A91.D10AF4C@example.com](mailto:3469A91.D10AF4C@example.com)"
+|> toString
+-- <mailto:list@example.org?In-Reply-To=%3C3469A91.D10AF4C@example.com%3E>
+-}
+inReplyTo : String -> Endo Mailto
+inReplyTo addr =
+    over (\m -> { m | inReplyTo = Just addr })
 
 
 {-| Adds a subject to the mailto
@@ -166,6 +200,13 @@ bcc bcc_ =
 body : String -> Endo Mailto
 body body_ =
     over (\m -> { m | body = Just body_ })
+
+
+{-| Appends additional key-value pair headers
+-}
+header : String -> String -> Endo Mailto
+header key val =
+    over (\m -> { m | extraHeaders = m.extraHeaders ++ [ ( key, val ) ] })
 
 
 {-| After composing a `Mailto`, consume a string

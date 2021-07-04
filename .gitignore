@@ -2,21 +2,26 @@
 /elm-stuff
 /documentation.json
 
-
 # Node
 node_modules/
 yarn.lock
 package-lock.json
 
+# Nix
+/result
+.direnv/
 
 # Logs
 /logs
 *.log
 
-
 # Editors
 *.sw[po]
 
+# NO to Microsoft
+*.code-workspace
+.github/
+.vscode/
 
 # OS generated files
 .DS_Store
