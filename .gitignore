@@ -9,7 +9,10 @@ package-lock.json
 
 # Nix
 /result
+
+# Direnv
 .direnv/
+.envrc
 
 # Logs
 /logs
